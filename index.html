@@ -483,9 +483,9 @@
   "imports": {
     "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
     "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/",
+    "react/": "https://esm.sh/react@^19.2.3/",
     "react": "https://esm.sh/react@^19.2.3",
-    "three/": "https://esm.sh/three@^0.182.0/",
-    "react/": "https://esm.sh/react@^19.2.3/"
+    "three/": "https://esm.sh/three@^0.182.0/"
   }
 }
 </script>
@@ -496,7 +496,8 @@
 
     <!-- 加入音訊元素 (已移除 loop 屬性) -->
     <audio id="bg-music">
-        <source src="Artlist Musical Logos - Tribal Rhythm.mp3" type="audio/mpeg">
+        <!-- 修正：使用網上公開的 MP3 連結，而非本機檔案 -->
+        <source src="https://cdn.pixabay.com/audio/2022/10/25/audio_2267606019.mp3" type="audio/mpeg">
     </audio>
 
     <div id="ui-layer">
@@ -580,8 +581,8 @@
         // 新增：爆破長按狀態
         let isHoldingExplode = false;
 
-        // 預設圖片路徑
-        const DEFAULT_IMAGE_PATH = '287069905_564270111773809_6459526836966162411_n.jpg';
+        // 修正：使用 Unsplash 上的公開圖片連結作為預設圖片
+        const DEFAULT_IMAGE_PATH = 'https://images.unsplash.com/photo-1614730341194-75c60740a2d3?auto=format&fit=crop&w=1000&q=80';
 
         // --- 播放音樂的輔助函式 ---
         function playMusic(restart = false) {
