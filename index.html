@@ -2,340 +2,1430 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>亞洲男孩商店 | ASIAN BOY VISION</title>
+    <!-- iOS 視口優化：viewport-fit=cover 是關鍵，讓內容延伸到瀏海區 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>ASIAN BOY Universe</title>
     
-    <!-- Google Fonts: Noto Sans TC -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
-    
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- 引入 Font Awesome 圖標庫 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
+    <!-- 樣式設計 -->
     <style>
         body {
-            font-family: 'Noto Sans TC', sans-serif;
-            overflow-x: hidden;
-            background-color: #fcfcfc; /* Off-white for cleaner look */
-        }
-        
-        /* Smooth Scroll */
-        html {
-            scroll-behavior: smooth;
-        }
-
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #f1f1f1; 
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #888; 
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #555; 
-        }
-
-        /* Video Container */
-        .video-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100vh;
+            margin: 0;
             overflow: hidden;
-            z-index: -1;
-        }
+            background-color: #020205;
+            /* 現代無襯線字體，乾淨優雅 */
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            touch-action: none;
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
 
-        #hero-video {
+            /* --- 關鍵修正：鎖定 Body 防止手機瀏覽器滾動回彈與工具列遮擋 --- */
+            position: fixed;
             width: 100%;
             height: 100%;
-            object-fit: cover;
-            transition: filter 0.1s ease-out;
+            overscroll-behavior: none;
         }
-
-        /* Gradient Overlay for text readability */
-        .video-overlay {
+        
+        #canvas-container {
+            width: 100vw;
+            height: 100vh;
+            /* 使用 dvh (Dynamic Viewport Height) 應對手機瀏覽器網址列伸縮 */
+            height: 100dvh; 
             position: absolute;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.2); /* Slight darkening */
-            z-index: 0;
+            z-index: 1;
         }
 
-        /* Product Card Hover Effect */
-        .product-card {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        #video-input {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 1px;
+            height: 1px;
+            opacity: 0;
+            pointer-events: none;
+            z-index: -1;
         }
-        .product-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+
+        /* --- 太空毛玻璃 UI 核心設計 (左下角面板) --- */
+        #ui-layer {
+            /* --- 通用/電腦版設定：靠左下方 --- */
+            position: fixed; 
+            bottom: 30px;
+            left: 20px; /* 電腦版：靠左 */
+            transform: none; /* 電腦版：不進行位移修正 */
+            
+            max-width: 420px; /* 稍微加寬以容納新按鈕 */
+            width: calc(100% - 40px);
+            
+            color: rgba(255, 255, 255, 0.95);
+            z-index: 10;
+            pointer-events: none;
+            
+            /* --- 回復原本的毛玻璃效果 --- */
+            /* 1. 太空感深色半透明背景 */
+            background: rgba(20, 25, 40, 0.4); 
+            
+            /* 2. 標準模糊度 */
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            
+            padding: 24px;
+            
+            /* 3. 原本的圓角 */
+            border-radius: 24px;
+            
+            /* 4. 原本的細緻邊框 */
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+            
+            /* 5. 原本的陰影 */
+            box-shadow: 
+                0 10px 40px rgba(0, 0, 0, 0.4),
+                inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+            
+            transition: opacity 0.3s ease;
+            
+            /* 讓整個容器內的文字預設置中 */
+            text-align: center;
+        }
+        
+        /* 讓面板內的互動元素可以被點擊 */
+        #ui-layer > * {
+            pointer-events: auto;
+        }
+
+        h1 {
+            font-weight: 300;
+            margin: 0 0 12px 0;
+            font-size: 1.5rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            /* 回復原本的漸層 */
+            background: linear-gradient(120deg, #ffffff 0%, #a5b4fc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            position: relative;
+            padding-bottom: 12px;
+            text-align: center;
+            text-shadow: none;
+        }
+        
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 2px;
+            background: rgba(165, 180, 252, 0.5);
+            border-radius: 2px;
+            box-shadow: none;
+        }
+
+        /* --- 面板內的社群按鈕列 --- */
+        .social-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px; 
+            pointer-events: auto; 
+            justify-content: center;
+        }
+
+        .social-btn {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1.1rem;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            /* 回復原本按鈕樣式 */
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+            box-shadow: none;
+        }
+
+        .social-btn:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(165, 180, 252, 0.3);
+            border-color: rgba(165, 180, 252, 0.4);
+        }
+
+        .social-btn:hover .fa-instagram { color: #e1306c; text-shadow: none; }
+        .social-btn:hover .fa-youtube { color: #ff0000; text-shadow: none; }
+        .social-btn:hover .fa-threads { color: #fff; text-shadow: none; } 
+        .social-btn:hover .fa-mug-hot { color: #13C3FF; text-shadow: none; } 
+
+        /* --- 底部資訊與按鈕列 --- */
+        .ui-footer-row {
+            margin-top: 12px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: center;
+            gap: 8px; /* 按鈕間距 */
+            align-items: center;
+            flex-wrap: wrap; /* 允許換行以適應小螢幕 */
+        }
+
+        /* 回復原本的按鈕樣式 */
+        .mode-btn, .reset-btn {
+            background: transparent;
+            border: 1px solid rgba(165, 180, 252, 0.3);
+            color: rgba(165, 180, 252, 0.8);
+            border-radius: 6px;
+            padding: 4px 10px; /* 稍微縮小內距以容納更多按鈕 */
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            outline: none;
+            justify-content: center;
+            white-space: nowrap; /* 確保文字不換行 */
+            user-select: none; /* 防止長按選取文字 */
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+            
+            backdrop-filter: none;
+            box-shadow: none;
+        }
+
+        .mode-btn:hover, .reset-btn:hover {
+            background: rgba(165, 180, 252, 0.15);
+            color: #fff;
+            border-color: #a5b4fc;
+            box-shadow: 0 0 12px rgba(165, 180, 252, 0.4);
+            transform: translateY(-1px);
+        }
+        
+        .mode-btn:active, .reset-btn:active {
+            transform: translateY(1px);
+            background: rgba(165, 180, 252, 0.25);
+        }
+        
+        .mode-btn.active-photo, .reset-btn.active-music {
+            background: rgba(165, 180, 252, 0.25);
+            color: #fff;
+            border-color: #fff;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.4);
+        }
+
+        /* --- lil-gui 太空毛玻璃風格 --- */
+        .lil-gui { 
+            --background-color: rgba(20, 25, 40, 0.4);
+            --text-color: rgba(255, 255, 255, 0.95);
+            --title-background-color: transparent;
+            --widget-color: rgba(255, 255, 255, 0.1);
+            --hover-color: rgba(255, 255, 255, 0.2);
+            --focus-color: rgba(255, 255, 255, 0.3);
+            --number-color: #a5b4fc;
+            --string-color: #6ee7b7;
+            
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            
+            border-radius: 24px !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            border-top: 1px solid rgba(255, 255, 255, 0.2) !important;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.2) !important;
+            border-left: none !important;
+            
+            box-shadow: 
+                0 10px 40px rgba(0, 0, 0, 0.4),
+                inset 0 0 0 1px rgba(255, 255, 255, 0.05) !important;
+                
+            padding-bottom: 15px;
+        }
+        
+        .lil-gui .title {
+            height: 40px;
+            line-height: 40px;
+            font-size: 14px;
+            font-weight: 500;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #a5b4fc; 
+            text-shadow: 0 0 15px rgba(165, 180, 252, 0.4);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            background: transparent;
+            text-align: center;
+        }
+
+        .lil-gui .children {
+            padding: 10px;
+        }
+        
+        .lil-gui.autoPlace {
+            top: 30px !important;
+            right: 20px !important;
+            max-width: calc(100vw - 20px) !important;
+            width: auto !important;
+        }
+
+        #loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 1rem;
+            z-index: 20;
+            transition: opacity 1s ease;
+            text-align: center;
+            width: 80%;
+            text-shadow: 0 0 20px rgba(255,255,255,0.5);
+            font-weight: 300;
+            letter-spacing: 3px;
+        }
+
+        .status-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background-color: #fb7185; 
+            margin-right: 10px;
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(251, 113, 133, 0.5);
+            vertical-align: middle;
+            transition: all 0.5s ease;
+            position: relative;
+        }
+        
+        .status-dot::after {
+            content: '';
+            position: absolute;
+            top: -4px;
+            left: -4px;
+            right: -4px;
+            bottom: -4px;
+            border-radius: 50%;
+            border: 1px solid currentColor;
+            opacity: 0.3;
+            animation: pulse 2s infinite;
+        }
+
+        .status-active { background-color: #4ade80; box-shadow: 0 0 15px rgba(74, 222, 128, 0.6); color: #4ade80; }
+        .status-inactive { background-color: #94a3b8; box-shadow: none; color: #94a3b8; }
+        
+        @keyframes pulse {
+            0% { transform: scale(0.8); opacity: 0.5; }
+            100% { transform: scale(1.5); opacity: 0; }
+        }
+        
+        .divider {
+            margin-top: 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 12px;
+        }
+
+        /* --- 手機版響應式優化 (小於 600px) --- */
+        @media (max-width: 600px) {
+            #ui-layer {
+                /* 手機版：完美置中靠下 */
+                left: 50%;
+                transform: translateX(-50%);
+                
+                /* 底部安全距離 */
+                bottom: 15px; 
+                bottom: calc(15px + env(safe-area-inset-bottom));
+                
+                width: 92%; /* 寬度稍微撐開 */
+                padding: 0; /* 移除內距，讓按鈕自己撐空間 */           
+                border-radius: 0;
+
+                /* --- 手機版背景移除修正 --- */
+                background: none;
+                backdrop-filter: none;
+                -webkit-backdrop-filter: none;
+                border: none;
+                box-shadow: none;
+            }
+            
+            #ui-layer h1 {
+                font-size: 1.3rem;
+                margin-bottom: 12px;
+                padding-bottom: 10px;
+                /* 標題保持原樣，背景透明 */
+            }
+            
+            /* --- 社群按鈕區塊 --- */
+            .social-row {
+                margin-bottom: 12px;
+                gap: 10px;
+            }
+
+            /* --- 獨立毛玻璃：社群按鈕 --- */
+            .social-btn {
+                width: 36px;
+                height: 36px;
+                font-size: 1.1rem;
+                
+                /* 獨立毛玻璃樣式 */
+                background: rgba(20, 25, 40, 0.65);
+                backdrop-filter: blur(12px);
+                -webkit-backdrop-filter: blur(12px);
+                border: 1px solid rgba(255, 255, 255, 0.15);
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+                border-radius: 10px;
+            }
+            
+            /* --- 功能按鈕區塊 --- */
+            .ui-footer-row {
+                flex-wrap: nowrap; /* 強制不換行 */
+                gap: 8px; /* 增加間距讓按鈕分離 */
+                justify-content: space-between; /* 均勻分佈 */
+                
+                /* 移除上方分隔線 */
+                border-top: none;
+                padding-top: 0;
+            }
+
+            /* --- 獨立毛玻璃：功能按鈕 --- */
+            .reset-btn, .mode-btn {
+                font-size: 11px;
+                padding: 0 8px;
+                height: 38px; /* 增加高度便於點擊 */
+                letter-spacing: 0.5px;
+                flex-shrink: 1;
+                min-width: 0;
+                
+                /* 獨立毛玻璃樣式 */
+                background: rgba(20, 25, 40, 0.65);
+                backdrop-filter: blur(12px);
+                -webkit-backdrop-filter: blur(12px);
+                border: 1px solid rgba(255, 255, 255, 0.15);
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+                border-radius: 10px;
+                
+                /* 確保文字顏色清晰 */
+                color: rgba(255, 255, 255, 0.9);
+                margin: 0;
+            }
+
+            /* 激活狀態需要更明顯一點 */
+            .mode-btn.active-photo, .reset-btn.active-music {
+                background: rgba(165, 180, 252, 0.35);
+                border-color: rgba(165, 180, 252, 0.6);
+                box-shadow: 0 0 15px rgba(165, 180, 252, 0.4);
+                color: #fff;
+            }
+
+            .reset-btn i, .mode-btn i {
+                margin-right: 3px;
+            }
+
+            #btn-music {
+                flex-shrink: 0;
+                padding: 0 10px;
+            }
+            
+            .divider {
+                margin-top: 10px;
+                padding-top: 8px;
+            }
+
+            /* --- Control Center (lil-gui) 手機版優化 --- */
+            .lil-gui.autoPlace {
+                top: 10px !important;
+                right: 10px !important;
+                max-width: calc(100vw - 20px) !important;
+                width: auto !important;
+            }
+            
+            .lil-gui {
+                --width: 260px;
+                font-size: 13px;
+                --widget-height: 28px;
+                max-height: 50vh;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch; 
+            }
+            
+            .lil-gui .title {
+                height: 36px;
+                line-height: 36px;
+                font-size: 12px;
+            }
+            
+            .lil-gui .children {
+                padding: 5px;
+            }
         }
     </style>
+
+    <!-- 引入 MediaPipe -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+
+    <!-- Import Map for Three.js -->
+    <script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/",
+    "react": "https://esm.sh/react@^19.2.3",
+    "three/": "https://esm.sh/three@^0.182.0/",
+    "react/": "https://esm.sh/react@^19.2.3/"
+  }
+}
+</script>
 </head>
-<body class="text-gray-900">
+<body>
 
-    <!-- Background Video Wrapper (Fixed Position) -->
-    <div class="video-container">
-        <div class="video-overlay"></div>
-        <video id="hero-video" autoplay muted loop playsinline>
-            <source src="https://res.cloudinary.com/dhnc6dsnl/video/upload/v1765817396/%E7%B6%B2%E9%A0%81%E5%BD%B1%E7%89%87_ffabqj.mp4" type="video/mp4">
-            您的瀏覽器不支援 HTML5 影片。
-        </video>
-    </div>
+    <div id="loading">Initializing Quantum Field...<br><span style="font-size:0.7em; opacity:0.6; letter-spacing: 1px;">Awaiting Input</span></div>
 
-    <!-- Navigation -->
-    <nav id="navbar" class="fixed w-full z-50 transition-all duration-300 py-6 px-6 md:px-12 flex justify-between items-center text-white mix-blend-difference">
-        <a href="#" class="text-2xl md:text-3xl font-black tracking-tighter uppercase">Asian Boy OS</a>
+    <!-- 加入音訊元素 (已移除 loop 屬性) -->
+    <audio id="bg-music">
+        <source src="Artlist Musical Logos - Tribal Rhythm.mp3" type="audio/mpeg">
+    </audio>
+
+    <div id="ui-layer">
+        <h1>ASIAN BOY VISION</h1>
         
-        <div class="hidden md:flex gap-8 font-medium">
-            <a href="#products" class="hover:underline underline-offset-4 decoration-2">商店</a>
-            <a href="#about" class="hover:underline underline-offset-4 decoration-2">關於</a>
-            <a href="#contact" class="hover:underline underline-offset-4 decoration-2">聯絡</a>
-        </div>
-
-        <!-- Mobile Menu Button -->
-        <button id="mobile-menu-btn" class="md:hidden">
-            <i data-lucide="menu" class="w-8 h-8"></i>
-        </button>
-    </nav>
-
-    <!-- Mobile Menu Overlay -->
-    <div id="mobile-menu" class="fixed inset-0 bg-black/95 z-40 transform translate-x-full transition-transform duration-300 flex flex-col justify-center items-center gap-8 text-white">
-        <button id="close-menu-btn" class="absolute top-6 right-6">
-            <i data-lucide="x" class="w-10 h-10"></i>
-        </button>
-        <a href="#products" class="text-2xl font-bold mobile-link">商店</a>
-        <a href="#about" class="text-2xl font-bold mobile-link">關於</a>
-        <a href="#contact" class="text-2xl font-bold mobile-link">聯絡</a>
-    </div>
-
-    <!-- Hero Section -->
-    <header class="relative h-screen flex flex-col justify-center items-center text-center px-4">
-        <div class="z-10 text-white animate-fade-in-up">
-            <h1 class="text-5xl md:text-8xl font-black tracking-tight mb-4 uppercase drop-shadow-lg">
-                Asian Boy<br>Vision
-            </h1>
-            <p class="text-lg md:text-2xl font-light tracking-wide mb-8 opacity-90 drop-shadow-md">
-                探索 曼妮 的獨特宇宙
-            </p>
-            <a href="#products" class="inline-block px-8 py-4 bg-white text-black font-bold tracking-widest text-sm hover:bg-gray-200 transition-colors uppercase">
-                立即選購
+        <!-- 社群按鈕 -->
+        <div class="social-row">
+            <a href="https://www.instagram.com/asian_boy_neo" target="_blank" class="social-btn" title="Instagram">
+                <i class="fab fa-instagram"></i>
+            </a>
+            <a href="https://www.youtube.com/@asian_boy_neo" target="_blank" class="social-btn" title="YouTube">
+                <i class="fab fa-youtube"></i>
+            </a>
+            <a href="https://www.threads.com/@asian_boy_neo?hl=zh-tw" target="_blank" class="social-btn" title="Threads">
+                <i class="fa-brands fa-threads"></i>
+            </a>
+            <a href="https://ko-fi.com/asianboyneo" target="_blank" class="social-btn" title="Ko-fi">
+                <i class="fa-solid fa-mug-hot"></i>
             </a>
         </div>
         
-        <!-- Scroll Indicator -->
-        <div class="absolute bottom-10 animate-bounce text-white">
-            <i data-lucide="arrow-down" class="w-8 h-8"></i>
+        <!-- 底部區域：照片模式切換 (左) + Explosion 按鈕 + Reset 按鈕 + 音樂 (最右) -->
+        <div class="ui-footer-row">
+            <button id="btn-mode-toggle" class="mode-btn">
+                <i class="fas fa-image"></i> Photo Mode
+            </button>
+            
+            <!-- Explosion 按鈕 (已移至 Reset 左邊) -->
+            <button id="btn-explode" class="reset-btn" title="Hold to Sustain Explosion">
+                <i class="fas fa-bomb"></i> Explosion
+            </button>
+
+            <!-- Reset 按鈕 (已移至 Explosion 右邊) -->
+            <button id="btn-reset" class="reset-btn" title="Reset View">
+                <i class="fas fa-sync-alt"></i> Reset
+            </button>
+
+            <!-- 音樂控制按鈕 (保持最右邊) -->
+            <button id="btn-music" class="reset-btn" title="Toggle Music">
+                <i class="fas fa-volume-mute"></i>
+            </button>
         </div>
-    </header>
-
-    <!-- Main Content Wrapper (White Background starts here) -->
-    <div class="relative bg-white z-20 rounded-t-[3rem] mt-[-2rem] shadow-[0_-20px_40px_rgba(0,0,0,0.1)] min-h-screen">
-        
-        <!-- Products Section -->
-        <section id="products" class="py-24 px-6 md:px-12 max-w-7xl mx-auto">
-            <div class="text-center mb-16">
-                <span class="text-sm font-bold text-gray-400 uppercase tracking-widest mb-2 block">Collection</span>
-                <h2 class="text-4xl md:text-5xl font-black tracking-tight mb-4 text-gray-900">最新上架</h2>
-                <div class="w-24 h-1 bg-black mx-auto"></div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                
-                <!-- Product 1: 曼妮經典款 -->
-                <div class="product-card group cursor-pointer">
-                    <div class="bg-gray-100 aspect-[4/5] rounded-xl overflow-hidden relative mb-4">
-                        <img src="https://github.com/Asianboyneo/Asian-Boy-Shop/blob/main/%E6%9B%BC%E5%A6%AE%E5%95%86%E5%93%81/1.jpeg?raw=true" alt="曼妮經典款" class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500">
-                        <div class="absolute top-4 right-4 bg-yellow-400 text-black text-xs font-bold px-3 py-1 rounded-full">經典</div>
-                    </div>
-                    <h3 class="text-xl font-bold mb-1">曼妮經典款</h3>
-                    <p class="text-sm text-gray-500 mb-3 line-clamp-2">起源之作，經典不敗。這不僅是公仔，更是曼妮宇宙的起點。簡約線條勾勒出的純粹神韻，絕對值得您架上的一席之地。</p>
-                    <div class="flex justify-between items-center">
-                        <span class="text-lg font-mono font-bold">NT$ 599</span>
-                        <button class="w-10 h-10 rounded-full bg-gray-100 hover:bg-black hover:text-white flex items-center justify-center transition-colors">
-                            <i data-lucide="shopping-bag" class="w-4 h-4"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Product 2: 曼妮與小老鼠款 -->
-                <div class="product-card group cursor-pointer">
-                    <div class="bg-gray-100 aspect-[4/5] rounded-xl overflow-hidden relative mb-4">
-                         <img src="https://github.com/Asianboyneo/Asian-Boy-Shop/blob/main/%E6%9B%BC%E5%A6%AE%E5%95%86%E5%93%81/2.jpeg?raw=true" alt="曼妮與小老鼠款" class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500">
-                        <div class="absolute top-4 right-4 bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full">熱銷</div>
-                    </div>
-                    <h3 class="text-xl font-bold mb-1">曼妮與小老鼠款</h3>
-                    <p class="text-sm text-gray-500 mb-3 line-clamp-2">意想不到的跨界友誼！曼妮與小夥伴的逗趣互動，為您的桌面增添一抹生動的故事感，看著就不自覺會心一笑。</p>
-                    <div class="flex justify-between items-center">
-                        <span class="text-lg font-mono font-bold">NT$ 699</span>
-                        <button class="w-10 h-10 rounded-full bg-gray-100 hover:bg-black hover:text-white flex items-center justify-center transition-colors">
-                            <i data-lucide="shopping-bag" class="w-4 h-4"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Product 3: 曼妮慵懶款 -->
-                <div class="product-card group cursor-pointer">
-                    <div class="bg-gray-100 aspect-[4/5] rounded-xl overflow-hidden relative mb-4">
-                         <img src="https://github.com/Asianboyneo/Asian-Boy-Shop/blob/main/%E6%9B%BC%E5%A6%AE%E5%95%86%E5%93%81/3.jpeg?raw=true" alt="曼妮慵懶款" class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500">
-                        <div class="absolute top-4 right-4 bg-purple-500 text-white text-xs font-bold px-3 py-1 rounded-full">療癒</div>
-                    </div>
-                    <h3 class="text-xl font-bold mb-1">曼妮慵懶款</h3>
-                    <p class="text-sm text-gray-500 mb-3 line-clamp-2">厭世美學的極致演繹。看著曼妮慵懶的模樣，彷彿也在告訴你：『休息一下吧，世界不會因此崩塌。』極致療癒，放鬆首選。</p>
-                    <div class="flex justify-between items-center">
-                        <span class="text-lg font-mono font-bold">NT$ 799</span>
-                        <button class="w-10 h-10 rounded-full bg-gray-100 hover:bg-black hover:text-white flex items-center justify-center transition-colors">
-                            <i data-lucide="shopping-bag" class="w-4 h-4"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Product 4: 曼妮傭人款 -->
-                <div class="product-card group cursor-pointer">
-                    <div class="bg-gray-100 aspect-[4/5] rounded-xl overflow-hidden relative mb-4">
-                         <img src="https://github.com/Asianboyneo/Asian-Boy-Shop/blob/main/%E6%9B%BC%E5%A6%AE%E5%95%86%E5%93%81/4.jpeg?raw=true" alt="曼妮傭人款" class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500">
-                        <div class="absolute top-4 right-4 bg-black text-white text-xs font-bold px-3 py-1 rounded-full">限定</div>
-                    </div>
-                    <h3 class="text-xl font-bold mb-1">曼妮傭人款</h3>
-                    <p class="text-sm text-gray-500 mb-3 line-clamp-2">全心全意，為您奉獻。穿上傭人裝的曼妮，展現出截然不同的順從萌感。是主僕遊戲的必備單品，也是對生活幽默的致敬。</p>
-                    <div class="flex justify-between items-center">
-                        <span class="text-lg font-mono font-bold">NT$ 300</span>
-                        <button class="w-10 h-10 rounded-full bg-gray-100 hover:bg-black hover:text-white flex items-center justify-center transition-colors">
-                            <i data-lucide="shopping-bag" class="w-4 h-4"></i>
-                        </button>
-                    </div>
-                </div>
-
-            </div>
-        </section>
-
-        <!-- About/Concept Section -->
-        <section id="about" class="py-24 bg-gray-900 text-white">
-            <div class="max-w-4xl mx-auto px-6 text-center">
-                <i data-lucide="stars" class="w-12 h-12 mx-auto mb-6 text-yellow-400"></i>
-                <h2 class="text-3xl md:text-5xl font-black mb-8 uppercase tracking-wide">Asian Boy Universe</h2>
-                <p class="text-lg text-gray-300 leading-relaxed mb-10">
-                    這是一個關於創意、風格與亞洲男孩視野的實驗空間。<br>
-                    從曼妮的日常生活到無限的宇宙想像，我們致力於將獨特的視覺語言轉化為觸手可及的實體。<br>
-                    簡單，卻不簡單。
-                </p>
-                <a href="https://asianboyneo.github.io/Asian-Boy/" target="_blank" class="inline-flex items-center gap-2 border border-white px-8 py-3 rounded-full hover:bg-white hover:text-black transition-all">
-                    <span>進入宇宙</span>
-                    <i data-lucide="external-link" class="w-4 h-4"></i>
-                </a>
-            </div>
-        </section>
-
-        <!-- Footer -->
-        <footer id="contact" class="bg-white pt-20 pb-10 px-6 border-t border-gray-100">
-            <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-10">
-                
-                <!-- Brand -->
-                <div class="text-center md:text-left">
-                    <h3 class="text-2xl font-black uppercase tracking-tighter mb-2">Asian Boy Vision</h3>
-                    <a href="mailto:kiwi21501@gmail.com" class="text-gray-500 hover:text-black transition-colors flex items-center justify-center md:justify-start gap-2">
-                        <i data-lucide="mail" class="w-4 h-4"></i>
-                        kiwi21501@gmail.com
-                    </a>
-                </div>
-
-                <!-- Social Links -->
-                <div class="flex gap-6">
-                    <a href="https://www.instagram.com/asian_boy_neo" target="_blank" class="group relative p-3 bg-gray-50 rounded-full hover:bg-pink-500 transition-colors">
-                        <i data-lucide="instagram" class="w-5 h-5 text-gray-700 group-hover:text-white transition-colors"></i>
-                        <span class="sr-only">Instagram</span>
-                    </a>
-                    <a href="https://www.youtube.com/@asian_boy_neo" target="_blank" class="group relative p-3 bg-gray-50 rounded-full hover:bg-red-600 transition-colors">
-                        <i data-lucide="youtube" class="w-5 h-5 text-gray-700 group-hover:text-white transition-colors"></i>
-                        <span class="sr-only">Youtube</span>
-                    </a>
-                    <a href="https://www.threads.com/@asian_boy_neo?hl=zh-tw" target="_blank" class="group relative p-3 bg-gray-50 rounded-full hover:bg-black transition-colors">
-                        <i data-lucide="at-sign" class="w-5 h-5 text-gray-700 group-hover:text-white transition-colors"></i>
-                        <span class="sr-only">Threads</span>
-                    </a>
-                    <a href="https://ko-fi.com/asianboyneo" target="_blank" class="group relative p-3 bg-gray-50 rounded-full hover:bg-blue-400 transition-colors">
-                        <i data-lucide="coffee" class="w-5 h-5 text-gray-700 group-hover:text-white transition-colors"></i>
-                        <span class="sr-only">Ko-fi</span>
-                    </a>
-                </div>
-            </div>
-
-            <div class="max-w-7xl mx-auto mt-16 text-center text-xs text-gray-400 font-medium">
-                &copy; 2026 ASIAN BOY VISION. All rights reserved.
-            </div>
-        </footer>
-
     </div>
 
-    <script>
-        // Initialize Icons
-        lucide.createIcons();
+    <!-- 隱藏的文件上傳輸入框 -->
+    <input type="file" id="file-input" style="display: none;" accept="image/*">
 
-        // 1. Progressive Blur Effect
-        const video = document.getElementById('hero-video');
-        const navbar = document.getElementById('navbar');
+    <video id="video-input" playsinline muted autoplay></video>
+    <div id="canvas-container"></div>
 
-        window.addEventListener('scroll', () => {
-            const scrollY = window.scrollY;
-            const windowHeight = window.innerHeight;
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+        import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+        import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+        import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+        import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
+
+        // --- 全局變量 ---
+        let scene, camera, renderer, composer, controls;
+        let particles, geometry, material;
+        let imagePlane; // 用於照片模式的平面 Mesh
+        // 新增：時鐘物件，用於計算時間差，解決不同裝置速度不一致問題
+        const clock = new THREE.Clock(); 
+        let time = 0;
+        // 已移除 centerOffsetY 變數
+        let currentImageData = null; 
+        
+        let cameraUtils; 
+        let isCameraActive = false; 
+        
+        // 開場動畫狀態旗標
+        let isIntroAnimation = true;
+        
+        // 照片模式狀態旗標
+        let isPhotoMode = false;
+
+        // 手動爆破變數
+        let manualExplosionStrength = 0;
+        
+        // 新增：爆破長按狀態
+        let isHoldingExplode = false;
+
+        // 預設圖片路徑
+        const DEFAULT_IMAGE_PATH = '287069905_564270111773809_6459526836966162411_n.jpg';
+
+        // --- 播放音樂的輔助函式 ---
+        function playMusic(restart = false) {
+            const audio = document.getElementById('bg-music');
+            const musicBtn = document.getElementById('btn-music');
             
-            // Blur Logic: Calculate blur amount based on scroll
-            // Max blur is 15px when scrolled 80% of window height
-            let blurAmount = (scrollY / (windowHeight * 0.8)) * 15;
-            if (blurAmount > 20) blurAmount = 20; // Cap at 20px
-            
-            video.style.filter = `blur(${blurAmount}px)`;
-            
-            // Navbar Logic
-            if (scrollY > 50) {
-                navbar.classList.add('bg-white/80', 'backdrop-blur-md', 'shadow-sm', 'py-4');
-                navbar.classList.remove('py-6', 'mix-blend-difference', 'text-white');
-                navbar.classList.add('text-black');
-            } else {
-                navbar.classList.remove('bg-white/80', 'backdrop-blur-md', 'shadow-sm', 'py-4', 'text-black');
-                navbar.classList.add('py-6', 'mix-blend-difference', 'text-white');
-            }
-        });
-
-        // 2. Mobile Menu Toggle
-        const menuBtn = document.getElementById('mobile-menu-btn');
-        const closeBtn = document.getElementById('close-menu-btn');
-        const mobileMenu = document.getElementById('mobile-menu');
-        const mobileLinks = document.querySelectorAll('.mobile-link');
-
-        function toggleMenu() {
-            const isHidden = mobileMenu.classList.contains('translate-x-full');
-            if (isHidden) {
-                mobileMenu.classList.remove('translate-x-full');
-                document.body.style.overflow = 'hidden'; // Prevent scrolling
-            } else {
-                mobileMenu.classList.add('translate-x-full');
-                document.body.style.overflow = '';
+            if (audio) {
+                if (restart) {
+                    audio.currentTime = 0;
+                }
+                
+                // 嘗試播放
+                const playPromise = audio.play();
+                
+                if (playPromise !== undefined) {
+                    playPromise.then(_ => {
+                        // 播放成功
+                        if (musicBtn) {
+                            musicBtn.innerHTML = '<i class="fas fa-music"></i>';
+                            musicBtn.classList.add('active-music');
+                        }
+                    })
+                    .catch(error => {
+                        // 播放失敗 (通常是因為沒有使用者互動)
+                        console.log("Autoplay prevented:", error);
+                        // 保持靜音圖示
+                        if (musicBtn) {
+                            musicBtn.innerHTML = '<i class="fas fa-volume-mute"></i>';
+                            musicBtn.classList.remove('active-music');
+                        }
+                    });
+                }
             }
         }
 
-        menuBtn.addEventListener('click', toggleMenu);
-        closeBtn.addEventListener('click', toggleMenu);
+        // --- 新增：隨機設定相機發射位置的輔助函式 ---
+        function setRandomLaunchPosition() {
+            // 設定一個極遠的半徑範圍 (例如 2000~3000)
+            const r = 2000 + Math.random() * 1000;
+            
+            // 球面座標隨機取點
+            const theta = Math.random() * Math.PI * 2;
+            const phi = Math.acos((Math.random() * 2) - 1);
+            
+            // 轉換為笛卡兒座標 (X, Y, Z)
+            camera.position.x = r * Math.sin(phi) * Math.cos(theta);
+            camera.position.y = r * Math.sin(phi) * Math.sin(theta);
+            camera.position.z = r * Math.cos(phi);
+            
+            // 確保相機一開始就看著中心
+            camera.lookAt(0, 0, 0);
+        }
 
-        // Close menu when a link is clicked
-        mobileLinks.forEach(link => {
-            link.addEventListener('click', toggleMenu);
-        });
+        const params = {
+            count: 80000,          
+            size: 306,             
+            opacity: 1.0,          
+            bloomStrength: 3.0,    
+            depthStrength: 60.0,   
+            floating: true,       
+            floatSpeed: 3.0,       
+            
+            toggleCamera: function() {
+                if (!cameraUtils) return;
 
-        // 3. Simple animation on load
-        document.addEventListener('DOMContentLoaded', () => {
-            // Can add more complex entrance animations here if needed
-        });
+                const statusDot = document.getElementById('cam-status');
+                const statusText = document.getElementById('status-text');
+                const instructions = document.getElementById('gesture-instructions');
+
+                if (isCameraActive) {
+                    cameraUtils.stop();
+                    isCameraActive = false;
+                    handPresent = false; 
+                    
+                    if(statusDot) statusDot.className = 'status-dot status-inactive';
+                    if(statusText) statusText.textContent = "Sensors Offline";
+                    
+                    if(instructions) instructions.style.display = 'none';
+                } else {
+                    cameraUtils.start().then(() => {
+                        isCameraActive = true;
+                        if(statusDot) statusDot.className = 'status-dot status-active';
+                        if(statusText) statusText.textContent = "Sensors Active";
+                        
+                        if(instructions) instructions.style.display = 'block';
+                    });
+                    if(statusDot) statusDot.className = 'status-dot'; 
+                    if(statusText) statusText.textContent = "Initializing...";
+                }
+            },
+            uploadPhoto: function() {
+                document.getElementById('file-input').click();
+            },
+            resetView: function() {
+                // 重置旋轉目標變數
+                targetRotationX = 0;
+                targetRotationY = 0;
+                targetCameraZ = 150;
+                
+                // 重置粒子本身的旋轉角度
+                if (particles) particles.rotation.set(0, 0, 0);
+
+                // --- 觸發開場穿梭特效邏輯 ---
+                // 1. 設定隨機發射位置 (注意：不呼叫 controls.reset())
+                setRandomLaunchPosition();
+                
+                // 2. 暫時鎖定控制器
+                controls.enabled = false;
+                // 確保目標點歸零
+                controls.target.set(0, 0, 0);
+                
+                // 3. 開啟動畫旗標
+                isIntroAnimation = true;
+
+                // 4. 重播音樂 (因為這是使用者點擊觸發的，所以瀏覽器會允許播放)
+                playMusic(true);
+            }
+        };
+        
+        let handPresent = false;
+        let targetRotationX = 0;
+        let targetRotationY = 0;
+        let targetCameraZ = 150; 
+        let pinchStrength = 0;
+
+        init();
+        initUI();
+        initMediaPipe();
+        initFileUpload();
+        animate();
+
+        function init() {
+            const container = document.getElementById('canvas-container');
+
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x020205); 
+            scene.fog = new THREE.FogExp2(0x020205, 0.0015);
+
+            camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 20000); 
+            
+            // 修正：先設定到標準位置 (0, 0, 150)，讓 Controls 記住這個是 "Home"
+            camera.position.set(0, 0, 150); // 回復為 0,0,150
+            camera.lookAt(0, 0, 0); // 回復為看 0,0,0
+
+            renderer = new THREE.WebGLRenderer({ 
+                antialias: false, 
+                powerPreference: "high-performance",
+                alpha: false
+            });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); 
+            renderer.toneMapping = THREE.ReinhardToneMapping;
+            container.appendChild(renderer.domElement);
+
+            // 初始化 OrbitControls (注意：要在 renderer 創建之後)
+            controls = new OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.autoRotate = false; 
+            controls.maxPolarAngle = Math.PI * 0.75;
+            controls.minPolarAngle = Math.PI * 0.25;
+            controls.enableTouch = true;
+            
+            // 儲存目前狀態 (150) 作為預設點
+            controls.saveState();
+
+            loadDefaultImage();
+
+            const renderScene = new RenderPass(scene, camera);
+            const bloomPass = new UnrealBloomPass(
+                new THREE.Vector2(window.innerWidth / window.innerHeight / 2, window.innerHeight / 2), 
+                1.5, 0.4, 0.85
+            );
+            bloomPass.strength = params.bloomStrength;
+            bloomPass.radius = 0.5;
+            bloomPass.threshold = 0.1; 
+
+            composer = new EffectComposer(renderer);
+            composer.addPass(renderScene);
+            composer.addPass(bloomPass);
+            composer.bloomPass = bloomPass;
+            
+            // 開場動畫：手動將相機移到隨機遠方
+            setRandomLaunchPosition();
+            
+            // 開場動畫期間暫停控制
+            controls.enabled = false;
+
+            window.addEventListener('resize', onWindowResize);
+            
+            setTimeout(() => {
+                const loading = document.getElementById('loading');
+                if(loading) loading.style.opacity = 0;
+            }, 1500);
+
+            // 嘗試開場播放音樂 (可能會被阻擋)
+            playMusic();
+        }
+
+        function loadDefaultImage() {
+            const statusText = document.getElementById('status-text');
+            if(statusText) statusText.textContent = "Loading Default Image...";
+
+            const img = new Image();
+            img.crossOrigin = "Anonymous"; 
+            img.onload = function() {
+                console.log("Default image loaded successfully.");
+                processImageToParticles(img, true); 
+                if(statusText) statusText.textContent = "Camera Standby";
+            };
+            img.onerror = function() {
+                console.warn("Could not load default image. Falling back to default galaxy.");
+                generateParticles(params.count); 
+                if(statusText) statusText.textContent = "Camera Standby";
+            };
+            img.src = DEFAULT_IMAGE_PATH;
+        }
+
+        function processImageToParticles(img, isInit = false) {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            const maxSize = 400; 
+            let w = img.width;
+            let h = img.height;
+            if (w > h && w > maxSize) {
+                h = Math.round(h * (maxSize / w));
+                w = maxSize;
+            } else if (h > maxSize) {
+                w = Math.round(w * (maxSize / h));
+                h = maxSize;
+            }
+
+            canvas.width = w;
+            canvas.height = h;
+            ctx.drawImage(img, 0, 0, w, h);
+
+            const imageData = ctx.getImageData(0, 0, w, h);
+            
+            currentImageData = {
+                width: w,
+                height: h,
+                data: imageData.data,
+                aspectRatio: img.width / img.height
+            };
+
+            generateParticles(params.count, currentImageData);
+
+            // --- 新增：創建照片模式用的 Plane Mesh ---
+            const displayWidth = 100;
+            const displayHeight = 100;
+            let finalWidth, finalHeight;
+            if (currentImageData.aspectRatio >= 1) {
+                finalWidth = displayWidth;
+                finalHeight = displayWidth / currentImageData.aspectRatio;
+            } else {
+                finalWidth = displayHeight * currentImageData.aspectRatio;
+                finalHeight = displayHeight;
+            }
+
+            // 清除舊的 imageMesh
+            if (imagePlane) {
+                scene.remove(imagePlane);
+                imagePlane.geometry.dispose();
+                if(imagePlane.material.map) imagePlane.material.map.dispose();
+                imagePlane.material.dispose();
+            }
+
+            const texture = new THREE.Texture(img);
+            texture.needsUpdate = true;
+            texture.colorSpace = THREE.SRGBColorSpace; 
+
+            const planeGeometry = new THREE.PlaneGeometry(finalWidth, finalHeight);
+            const planeMaterial = new THREE.MeshBasicMaterial({ 
+                map: texture,
+                transparent: true,
+                side: THREE.DoubleSide
+            });
+
+            imagePlane = new THREE.Mesh(planeGeometry, planeMaterial);
+            imagePlane.visible = isPhotoMode; // 根據目前模式決定是否顯示
+            scene.add(imagePlane);
+
+            // 更新粒子可見度 (根據是否為 Photo Mode)
+            if(particles) particles.visible = !isPhotoMode;
+            
+            if (!isInit) {
+                // 上傳圖片後，使用隨機角度發射
+                setRandomLaunchPosition();
+                
+                // 重置粒子旋轉，讓新圖片從正面開始
+                if (particles) particles.rotation.set(0, 0, 0);
+                targetRotationX = 0;
+                targetRotationY = 0;
+
+                // 修正：不呼叫 reset，只鎖定並歸零目標
+                controls.enabled = false; 
+                controls.target.set(0, 0, 0); // 回復為 0,0,0
+                
+                isIntroAnimation = true; // 重新啟動穿梭動畫旗標
+
+                // 上傳新圖片時也重播音樂
+                playMusic(true);
+            }
+        }
+
+        function initUI() {
+            // 綁定左下角面板的 Reset 按鈕
+            const resetBtn = document.getElementById('btn-reset');
+            
+            // --- Reset 還原為單純點擊邏輯 ---
+            if (resetBtn) {
+                resetBtn.addEventListener('click', (e) => {
+                    e.preventDefault(); // 防止按鈕焦點殘留
+                    params.resetView();
+                    resetBtn.blur();
+                });
+            }
+
+            // 綁定 Explosion 按鈕
+            const explodeBtn = document.getElementById('btn-explode');
+            
+            // 定義長按開始
+            const startExplode = (e) => {
+                // 防止觸發 click 或預設行為 (例如選取文字)
+                if(e.cancelable && e.type === 'touchstart') e.preventDefault();
+                
+                // 如果在照片模式，自動切回粒子模式
+                if(isPhotoMode) {
+                    const modeBtn = document.getElementById('btn-mode-toggle');
+                    if(modeBtn) modeBtn.click();
+                }
+                
+                isHoldingExplode = true;
+            };
+
+            // 定義長按結束
+            const endExplode = () => {
+                isHoldingExplode = false;
+                if(explodeBtn) explodeBtn.blur();
+            };
+
+            if (explodeBtn) {
+                // 移除舊的 click 監聽 (如果有)
+                // 綁定按下事件 (滑鼠/觸控)
+                explodeBtn.addEventListener('mousedown', startExplode);
+                explodeBtn.addEventListener('touchstart', startExplode, {passive: false});
+                
+                // 綁定放開事件 (全域監聽，防止滑出按鈕放開無效)
+                window.addEventListener('mouseup', endExplode);
+                window.addEventListener('touchend', endExplode);
+                window.addEventListener('mouseleave', endExplode); // 滑鼠移出視窗也視為放開
+            }
+
+            // --- 新增：綁定音樂按鈕 ---
+            const musicBtn = document.getElementById('btn-music');
+            const audio = document.getElementById('bg-music');
+
+            // 監聽音樂結束事件：當音樂播完時，更新按鈕狀態
+            if (audio) {
+                audio.addEventListener('ended', () => {
+                    if (musicBtn) {
+                        musicBtn.innerHTML = '<i class="fas fa-volume-mute"></i>';
+                        musicBtn.classList.remove('active-music');
+                    }
+                });
+            }
+
+            if (musicBtn) {
+                musicBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    if (audio) {
+                        if (audio.paused) {
+                            playMusic(); // 播放
+                        } else {
+                            audio.pause();
+                            musicBtn.innerHTML = '<i class="fas fa-volume-mute"></i>';
+                            musicBtn.classList.remove('active-music');
+                        }
+                    }
+                    musicBtn.blur();
+                });
+            }
+
+            // --- 新增：綁定照片模式切換按鈕 ---
+            const modeBtn = document.getElementById('btn-mode-toggle');
+            if (modeBtn) {
+                modeBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    isPhotoMode = !isPhotoMode;
+                    
+                    if (isPhotoMode) {
+                        // 修改處：切換成粒子模式的按鈕文字
+                        modeBtn.innerHTML = '<i class="fas fa-cubes"></i> Particle Mode';
+                        modeBtn.classList.add('active-photo');
+                        
+                        // 切換為照片模式：隱藏粒子，顯示照片，減弱發光
+                        if (particles) particles.visible = false;
+                        if (imagePlane) imagePlane.visible = true;
+                        if (composer.bloomPass) composer.bloomPass.strength = 0.2; // 微微發光即可，太強會過曝
+                    } else {
+                        // 修改處：切換成照片模式的按鈕文字
+                        modeBtn.innerHTML = '<i class="fas fa-image"></i> Photo Mode';
+                        modeBtn.classList.remove('active-photo');
+                        
+                        // 切換回粒子模式：顯示粒子，隱藏照片，恢復發光
+                        if (particles) particles.visible = true;
+                        if (imagePlane) imagePlane.visible = false;
+                        if (composer.bloomPass) composer.bloomPass.strength = params.bloomStrength;
+                    }
+                    
+                    modeBtn.blur();
+                });
+            }
+
+            const gui = new GUI({ title: 'Control Center' }); 
+            if (window.innerWidth < 600) gui.close();
+
+            const folder1 = gui.addFolder('Input Source');
+            folder1.add(params, 'toggleCamera').name('👁️ Hand Tracking');
+            folder1.add(params, 'uploadPhoto').name('📷 Upload Image');
+            
+            folder1.add(params, 'floating').name('🌊 Auto Float');
+            folder1.add(params, 'floatSpeed', 0.1, 5.0).name('Float Speed');
+            
+            folder1.add(params, 'depthStrength', 0, 100).name('3D Depth').onChange(val => {
+                if(currentImageData) generateParticles(params.count, currentImageData);
+            });
+
+            const folder2 = gui.addFolder('Particle System');
+            folder2.add(params, 'count', 5000, 80000, 5000).name('Density').onFinishChange(val => {
+                generateParticles(val, currentImageData);
+            });
+            
+            folder2.add(params, 'size', 10, 1000).name('Size').onChange(val => {
+                if(material) material.uniforms.uSize.value = val;
+            });
+
+            folder2.add(params, 'opacity', 0.1, 1.0).name('Opacity').onChange(val => {
+                if(material) material.uniforms.uOpacity.value = val;
+            });
+
+            folder2.add(params, 'bloomStrength', 0, 3).name('Glow Intensity').onChange(val => {
+                params.bloomStrength = val; // 更新 params 數值
+                // 只有在非照片模式下才即時更新 bloom 強度
+                if (!isPhotoMode && composer.bloomPass) {
+                    composer.bloomPass.strength = val;
+                }
+            });
+        }
+
+        function initFileUpload() {
+            const fileInput = document.getElementById('file-input');
+            fileInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const img = new Image();
+                    img.onload = function() {
+                        processImageToParticles(img, false); 
+                    };
+                    img.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+                this.value = '';
+            });
+        }
+
+        function generateParticles(count, imgData = null) {
+            if (particles) {
+                scene.remove(particles);
+                particles.geometry.dispose();
+            }
+
+            geometry = new THREE.BufferGeometry();
+            const positions = [];
+            const colors = [];
+            const sizes = [];
+            const randomness = [];
+
+            const displayWidth = 100;
+            const displayHeight = 100;
+
+            if (imgData) {
+                let finalWidth, finalHeight;
+                if (imgData.aspectRatio >= 1) {
+                    finalWidth = displayWidth;
+                    finalHeight = displayWidth / imgData.aspectRatio;
+                } else {
+                    finalWidth = displayHeight * imgData.aspectRatio;
+                    finalHeight = displayHeight;
+                }
+
+                const data = imgData.data;
+                const w = imgData.width;
+                const h = imgData.height;
+
+                for (let i = 0; i < count; i++) {
+                    const px = Math.floor(Math.random() * w);
+                    const py = Math.floor(Math.random() * h);
+                    
+                    const index = (py * w + px) * 4;
+                    
+                    const r = data[index] / 255;
+                    const g = data[index + 1] / 255;
+                    const b = data[index + 2] / 255;
+                    const a = data[index + 3];
+
+                    if (a < 20 || (r+g+b) < 0.05) {
+                         colors.push(0, 0, 0); 
+                    } else {
+                        colors.push(r, g, b);
+                    }
+
+                    const u = (px / w) - 0.5;
+                    const v = (py / h) - 0.5;
+
+                    const x = u * finalWidth;
+                    const y = -v * finalHeight; 
+
+                    const brightness = 0.299 * r + 0.587 * g + 0.114 * b;
+                    const z = brightness * params.depthStrength; 
+
+                    positions.push(x, y, z);
+                    sizes.push(Math.random() * 0.5 + 0.5); 
+                    randomness.push(Math.random());
+                }
+
+            } else {
+                const galaxyColor1 = new THREE.Color('#00ffff');
+                const galaxyColor2 = new THREE.Color('#ff00ff');
+
+                for (let i = 0; i < count; i++) {
+                    const r = Math.random() * 50;
+                    const spinAngle = r * 0.2;
+                    const branchAngle = (i % 3) * ((Math.PI * 2) / 3);
+                    
+                    const randomX = Math.pow(Math.random(), 3) * (Math.random() < 0.5 ? 1 : -1) * (10 - r * 0.1);
+                    const randomY = Math.pow(Math.random(), 3) * (Math.random() < 0.5 ? 1 : -1) * (10 - r * 0.1);
+                    const randomZ = Math.pow(Math.random(), 3) * (Math.random() < 0.5 ? 1 : -1) * (10 - r * 0.1);
+
+                    const x = Math.cos(spinAngle + branchAngle) * r + randomX;
+                    const y = (Math.random() - 0.5) * (r * 0.2) + randomY; 
+                    const z = Math.sin(spinAngle + branchAngle) * r + randomZ;
+
+                    positions.push(x, y, z);
+
+                    const mixedColor = galaxyColor1.clone().lerp(galaxyColor2, r / 50);
+                    colors.push(mixedColor.r, mixedColor.g, mixedColor.b);
+
+                    sizes.push(Math.random());
+                    randomness.push(Math.random());
+                }
+            }
+
+            geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+            geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+            geometry.setAttribute('size', new THREE.Float32BufferAttribute(sizes, 1));
+            geometry.setAttribute('randomness', new THREE.Float32BufferAttribute(randomness, 1));
+
+            if (!material) {
+                material = new THREE.ShaderMaterial({
+                    uniforms: {
+                        uTime: { value: 0 },
+                        uPixelRatio: { value: renderer.getPixelRatio() },
+                        uSize: { value: params.size },
+                        uOpacity: { value: params.opacity }, 
+                        uPinch: { value: 0 }
+                    },
+                    vertexShader: `
+                        uniform float uTime;
+                        uniform float uPixelRatio;
+                        uniform float uSize;
+                        uniform float uPinch;
+                        
+                        attribute float size;
+                        attribute float randomness;
+                        attribute vec3 color;
+                        
+                        varying vec3 vColor;
+
+                        void main() {
+                            vec3 pos = position;
+                            
+                            // 保持呼吸效果
+                            float wave = sin(pos.x * 0.1 + uTime) * 0.5 + cos(pos.y * 0.1 + uTime) * 0.5;
+                            pos.z += wave * 0.5; 
+
+                            vec3 dir = normalize(pos);
+                            if (length(pos) < 0.1) dir = vec3(0.0, 0.0, 1.0);
+                            
+                            // --- 修改處：大幅增強爆破效果 ---
+                            // 原本只有 * 30.0，現在改為 * 200.0 並加入隨機性 (randomness)
+                            // 這樣粒子會炸得非常開，且層次分明
+                            float explosionDist = uPinch * (50.0 + randomness * 300.0);
+                            pos += dir * explosionDist;
+                            
+                            // 保持隨機閃爍
+                            pos.x += sin(uTime * 5.0 + randomness * 100.0) * 0.1;
+                            pos.y += cos(uTime * 5.0 + randomness * 100.0) * 0.1;
+
+                            vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
+                            
+                            // --- 修改處：增強爆破時的粒子大小膨脹 ---
+                            // 將 1.5 改為 5.0，讓爆發時粒子瞬間變大變亮
+                            gl_PointSize = (uSize * size * (1.0 + uPinch * 5.0)) * uPixelRatio * (1.0 / -mvPosition.z);
+                            gl_PointSize = min(gl_PointSize, 500.0);
+
+                            gl_Position = projectionMatrix * mvPosition;
+                            
+                            // 爆破時稍微增加一點亮度
+                            vColor = color + vec3(uPinch * 0.8);
+                        }
+                    `,
+                    fragmentShader: `
+                        uniform float uOpacity; 
+                        varying vec3 vColor;
+                        
+                        void main() {
+                            vec2 xy = gl_PointCoord.xy - vec2(0.5);
+                            float ll = length(xy);
+                            if(ll > 0.5) discard;
+                            
+                            float alpha = (0.5 - ll) * 2.0;
+                            alpha = pow(alpha, 2.0);
+
+                            gl_FragColor = vec4(vColor, alpha * uOpacity);
+                        }
+                    `,
+                    transparent: true,
+                    depthWrite: false,
+                    blending: THREE.AdditiveBlending
+                });
+            }
+
+            particles = new THREE.Points(geometry, material);
+            // 注意：這裡不直接 add(particles)，改為根據模式判斷
+            particles.visible = !isPhotoMode; 
+            scene.add(particles);
+        }
+
+        // --- MediaPipe ---
+        function initMediaPipe() {
+            const videoElement = document.getElementById('video-input');
+            const statusDot = document.getElementById('cam-status');
+            const statusText = document.getElementById('status-text');
+
+            const hands = new Hands({locateFile: (file) => {
+                return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
+            }});
+
+            hands.setOptions({
+                maxNumHands: 1,
+                modelComplexity: 1, 
+                minDetectionConfidence: 0.5,
+                minTrackingConfidence: 0.5
+            });
+
+            hands.onResults(onHandsResults);
+
+            cameraUtils = new Camera(videoElement, {
+                onFrame: async () => {
+                    await hands.send({image: videoElement});
+                },
+                width: 640,
+                height: 480
+            });
+        }
+
+        function onHandsResults(results) {
+            if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+                handPresent = true;
+                controls.autoRotate = false;
+
+                const landmarks = results.multiHandLandmarks[0];
+                
+                const palmX = landmarks[9].x;
+                const palmY = landmarks[9].y;
+                targetRotationY = (palmX - 0.5) * 6; 
+                targetRotationX = (palmY - 0.5) * 3;
+
+                const wrist = landmarks[0];
+                const middleKnuckle = landmarks[9];
+                const handSize = Math.sqrt(
+                    Math.pow(wrist.x - middleKnuckle.x, 2) + 
+                    Math.pow(wrist.y - middleKnuckle.y, 2)
+                );
+                
+                const minHand = 0.05; 
+                const maxHand = 0.25; 
+                const minZ = 50;      
+                const maxZ = 300;     
+
+                let normalizedSize = (handSize - minHand) / (maxHand - minHand);
+                normalizedSize = Math.max(0, Math.min(1, normalizedSize));
+
+                targetCameraZ = maxZ - (normalizedSize * (maxZ - minZ));
+
+                const thumbTip = landmarks[4];
+                const indexTip = landmarks[8];
+                const distance = Math.sqrt(
+                    Math.pow(thumbTip.x - indexTip.x, 2) + 
+                    Math.pow(thumbTip.y - indexTip.y, 2)
+                );
+
+                const pinchThreshold = 0.12;
+                if(distance < pinchThreshold) {
+                    pinchStrength = Math.min(1, (pinchThreshold - distance) / pinchThreshold);
+                } else {
+                    pinchStrength = 0;
+                }
+
+            } else {
+                handPresent = false;
+                controls.autoRotate = false; 
+                pinchStrength = Math.max(0, pinchStrength - 0.05);
+            }
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            composer.setSize(window.innerWidth, window.innerHeight);
+            if(material) material.uniforms.uPixelRatio.value = renderer.getPixelRatio();
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            // --- 關鍵修正：引入 Delta Time (時間差) ---
+            // getDelta() 會回傳上一幀到這一幀經過的秒數
+            // 加入 Math.min(dt, 0.1) 是為了防止使用者切換分頁後回來，dt 變得過大導致動畫瞬間跳躍
+            const rawDt = clock.getDelta();
+            const dt = Math.min(rawDt, 0.1); 
+
+            // 累加時間給 Shader 使用
+            time += dt;
+
+            // 處理手動爆破的衰減與維持
+            if (isHoldingExplode) {
+                // 長按時，強度快速上升並維持在 1.0 (使用時間差讓過渡更平滑)
+                // 使用 lerp: current = current + (target - current) * (1 - exp(-decay * dt))
+                const decay = 8.0;
+                manualExplosionStrength += (1.0 - manualExplosionStrength) * (1.0 - Math.exp(-decay * dt));
+            } else {
+                // 放開時，衰減
+                if (manualExplosionStrength > 0) {
+                    const decay = 4.0; // 調整衰減速度
+                    manualExplosionStrength *= Math.exp(-decay * dt);
+                    if (manualExplosionStrength < 0.001) manualExplosionStrength = 0;
+                }
+            }
+
+            if (material) {
+                material.uniforms.uTime.value = time;
+                // 結合手勢捏合強度 與 手動爆破強度
+                let totalPinch = Math.max(pinchStrength, manualExplosionStrength);
+                
+                // 平滑過渡 pinch 值 (同樣改為時間相關)
+                const pinchDecay = 5.0;
+                material.uniforms.uPinch.value += (totalPinch - material.uniforms.uPinch.value) * (1.0 - Math.exp(-pinchDecay * dt));
+            }
+
+            // --- 開場穿梭動畫邏輯 (修改為全方位移動 + 時間基礎) ---
+            if (isIntroAnimation) {
+                // 目標位置
+                const targetX = 0;
+                const targetY = 0; // 回復為 0
+                const targetZ = 150;
+
+                // --- 關鍵修正：將速度改為與時間掛鉤 ---
+                const referenceFPS = 60;
+                // 修改處：將速度係數調降至 0.0055，使動畫時間延長至約 20-21 秒
+                const baseFactor = 0.0055; 
+                const timeAdjustedSpeed = 1 - Math.pow(1 - baseFactor, dt * referenceFPS);
+
+                // 平滑移動相機 (X, Y, Z 都要動)
+                camera.position.x += (targetX - camera.position.x) * timeAdjustedSpeed;
+                camera.position.y += (targetY - camera.position.y) * timeAdjustedSpeed;
+                camera.position.z += (targetZ - camera.position.z) * timeAdjustedSpeed;
+                
+                // 飛行過程中持續對焦中心
+                camera.lookAt(0, 0, 0); // 回復為 0,0,0
+
+                // 計算與目標點的距離
+                const dist = camera.position.distanceTo(new THREE.Vector3(targetX, targetY, targetZ));
+                
+                // 檢查是否接近目標
+                if (dist < 1.5) {
+                    // 1. 強制對齊目標點
+                    camera.position.set(targetX, targetY, targetZ);
+                    camera.lookAt(0, 0, 0); // 回復為 0,0,0
+                    
+                    isIntroAnimation = false;
+                    
+                    // 2. 啟用控制器
+                    controls.enabled = true;
+                    
+                    // 3. 關鍵修正：暫時關閉阻尼並更新，以消除切換瞬間的慣性跳動
+                    controls.enableDamping = false;
+                    controls.update(); 
+                    controls.enableDamping = true; // 恢復阻尼
+                }
+            } else {
+                // 正常模式下的控制邏輯
+                controls.update();
+
+                if (handPresent) {
+                    // 手勢控制也加入時間差修正，讓操作更跟手，不會因為 FPS 不同而忽快忽慢
+                    const rotationSpeed = 3.0 * dt; // 調整旋轉速度系數
+                    const zoomSpeed = 200.0 * dt;   // 調整縮放速度系數 (注意：這裡是位移量，不是比例)
+
+                    if(particles) {
+                        particles.rotation.y += (targetRotationY - particles.rotation.y) * rotationSpeed;
+                        particles.rotation.x += (targetRotationX - particles.rotation.x) * rotationSpeed;
+                    }
+                    // 注意：手勢縮放通常是直接控制位置，這裡簡單用 lerp 或直接加減
+                    // 為了保持原本手感，這裡微調係數
+                    camera.position.z += (targetCameraZ - camera.position.z) * (2.0 * dt);
+                } else {
+                    if(particles && params.floating && !isPhotoMode) {
+                        const speed = params.floatSpeed;
+                        
+                        // 旋轉阻尼也需要時間修正
+                        const floatDamping = 1.0 * dt; 
+
+                        // time 已經是根據 dt 累加的，所以這裡的 sin/cos 波形會自動正確
+                        const targetX = Math.sin(time * 0.3 * speed) * 0.15;
+                        particles.rotation.x += (targetX - particles.rotation.x) * floatDamping;
+
+                        const maxAngle = Math.PI / 4; 
+                        const rawWave = (Math.sin(time * 0.5 * speed) + Math.cos(time * 0.2 * speed));
+                        const targetY = (rawWave / 2) * maxAngle;
+                        
+                        particles.rotation.y += (targetY - particles.rotation.y) * floatDamping;
+                    }
+                }
+            }
+
+            composer.render();
+        }
     </script>
 </body>
 </html>
