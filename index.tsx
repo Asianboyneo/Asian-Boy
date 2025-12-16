@@ -13,7 +13,7 @@ declare global {
   }
 }
 
-const DEFAULT_IMAGE_PATH = 'https://github.com/Asianboyneo/Asian-Boy/blob/main/287069905_564270111773809_6459526836966162411_n.jpg?raw=true';
+const DEFAULT_IMAGE_PATH = '287069905_564270111773809_6459526836966162411_n.jpg';
 
 export default function AsianBoyUniverse() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -615,112 +615,179 @@ export default function AsianBoyUniverse() {
       scene.add(particles);
     }
 
-    function onWindowResize() {
-      if (!camera || !renderer) return;
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
-      if (composer) composer.setSize(window.innerWidth, window.innerHeight);
-      if (material) material.uniforms.uPixelRatio.value = renderer.getPixelRatio();
-    }
-
-    function onHandsResults(results: any) {
-      if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
-        handPresent = true;
-        const landmarks = results.multiHandLandmarks[0];
-        
-        const thumb = landmarks[4];
-        const index = landmarks[8];
-        const dist = Math.hypot(thumb.x - index.x, thumb.y - index.y);
-        
-        pinchStrength = Math.max(0, Math.min(1, (0.1 - dist) * 10));
-        
-        const wrist = landmarks[0];
-        targetRotationY = (wrist.x - 0.5) * 3;
-        targetRotationX = (wrist.y - 0.5) * 2;
-      } else {
-        handPresent = false;
-        pinchStrength = 0;
-      }
-    }
-
     function initMediaPipe() {
-      if (!videoRef.current) return;
       const videoElement = videoRef.current;
-      const hands = new window.Hands({locateFile: (file: string) => {
-        return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
-      }});
+      if (!videoElement || typeof window.Hands === 'undefined' || typeof window.Camera === 'undefined') return;
+
+      const hands = new window.Hands({
+        locateFile: (file: string) => {
+          return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
+        }
+      });
+
       hands.setOptions({
         maxNumHands: 1,
         modelComplexity: 1,
         minDetectionConfidence: 0.5,
         minTrackingConfidence: 0.5
       });
+
       hands.onResults(onHandsResults);
-      
+
       cameraUtils = new window.Camera(videoElement, {
         onFrame: async () => {
-          await hands.send({image: videoElement});
+          await hands.send({ image: videoElement });
         },
         width: 640,
         height: 480
       });
     }
 
+    function onHandsResults(results: any) {
+      if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+        handPresent = true;
+        controls.autoRotate = false;
+
+        const landmarks = results.multiHandLandmarks[0];
+
+        const palmX = landmarks[9].x;
+        const palmY = landmarks[9].y;
+        targetRotationY = (palmX - 0.5) * 6;
+        targetRotationX = (palmY - 0.5) * 3;
+
+        const wrist = landmarks[0];
+        const middleKnuckle = landmarks[9];
+        const handSize = Math.sqrt(
+          Math.pow(wrist.x - middleKnuckle.x, 2) +
+          Math.pow(wrist.y - middleKnuckle.y, 2)
+        );
+
+        const minHand = 0.05;
+        const maxHand = 0.25;
+        const minZ = 50;
+        const maxZ = 300;
+
+        let normalizedSize = (handSize - minHand) / (maxHand - minHand);
+        normalizedSize = Math.max(0, Math.min(1, normalizedSize));
+
+        targetCameraZ = maxZ - (normalizedSize * (maxZ - minZ));
+
+        const thumbTip = landmarks[4];
+        const indexTip = landmarks[8];
+        const distance = Math.sqrt(
+          Math.pow(thumbTip.x - indexTip.x, 2) +
+          Math.pow(thumbTip.y - indexTip.y, 2)
+        );
+
+        const pinchThreshold = 0.12;
+        if (distance < pinchThreshold) {
+          pinchStrength = Math.min(1, (pinchThreshold - distance) / pinchThreshold);
+        } else {
+          pinchStrength = 0;
+        }
+
+      } else {
+        handPresent = false;
+        controls.autoRotate = false;
+        pinchStrength = Math.max(0, pinchStrength - 0.05);
+      }
+    }
+
+    function onWindowResize() {
+      if (!camera || !renderer || !composer) return;
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      composer.setSize(window.innerWidth, window.innerHeight);
+      if (material) material.uniforms.uPixelRatio.value = renderer.getPixelRatio();
+    }
+
     function animate() {
       animationId = requestAnimationFrame(animate);
-      
-      const delta = clock.getDelta();
-      time += delta;
-      
-      if (material) material.uniforms.uTime.value = time;
-      
+
+      const rawDt = clock.getDelta();
+      const dt = Math.min(rawDt, 0.1);
+
+      time += dt;
+
       if (isHoldingExplode) {
-        manualExplosionStrength = Math.min(manualExplosionStrength + delta * 2, 1);
+        const decay = 8.0;
+        manualExplosionStrength += (1.0 - manualExplosionStrength) * (1.0 - Math.exp(-decay * dt));
       } else {
-        manualExplosionStrength = Math.max(manualExplosionStrength - delta * 2, 0);
-      }
-      
-      let pinch = manualExplosionStrength;
-      if (isCameraActive && handPresent) pinch = Math.max(pinch, pinchStrength);
-      
-      if (material) {
-        material.uniforms.uPinch.value += (pinch - material.uniforms.uPinch.value) * 0.1;
-      }
-      
-      if (camera) {
-        if (isIntroAnimation) {
-          camera.position.lerp(new THREE.Vector3(0,0,150), 0.05);
-          camera.lookAt(0,0,0);
-          if (camera.position.distanceTo(new THREE.Vector3(0,0,150)) < 1) {
-            isIntroAnimation = false;
-            if(controls) {
-              controls.enabled = true;
-              controls.saveState();
-            }
-          }
-        } else if (isCameraActive && handPresent) {
-          const r = 150;
-          const tx = r * Math.sin(targetRotationY);
-          const ty = r * Math.sin(-targetRotationX);
-          const tz = r * Math.cos(targetRotationY);
-          
-          camera.position.x += (tx - camera.position.x) * 0.1;
-          camera.position.y += (ty - camera.position.y) * 0.1;
-          camera.position.z += (tz - camera.position.z) * 0.1;
-          camera.lookAt(0,0,0);
-        } else if (params.floating && !isHoldingExplode) {
-          const angle = params.floatSpeed * 0.1 * delta;
-          const x = camera.position.x;
-          const z = camera.position.z;
-          camera.position.x = x * Math.cos(angle) - z * Math.sin(angle);
-          camera.position.z = x * Math.sin(angle) + z * Math.cos(angle);
-          camera.lookAt(0,0,0);
+        if (manualExplosionStrength > 0) {
+          const decay = 4.0;
+          manualExplosionStrength *= Math.exp(-decay * dt);
+          if (manualExplosionStrength < 0.001) manualExplosionStrength = 0;
         }
       }
-      
-      if (controls && !isCameraActive && !isIntroAnimation) controls.update();
-      if (composer) composer.render();
+
+      if (material) {
+        material.uniforms.uTime.value = time;
+        let totalPinch = Math.max(pinchStrength, manualExplosionStrength);
+        const pinchDecay = 5.0;
+        material.uniforms.uPinch.value += (totalPinch - material.uniforms.uPinch.value) * (1.0 - Math.exp(-pinchDecay * dt));
+      }
+
+      if (isIntroAnimation) {
+        const targetX = 0;
+        const targetY = 0;
+        const targetZ = 150;
+
+        const referenceFPS = 60;
+        const baseFactor = 0.0055;
+        const timeAdjustedSpeed = 1 - Math.pow(1 - baseFactor, dt * referenceFPS);
+
+        camera.position.x += (targetX - camera.position.x) * timeAdjustedSpeed;
+        camera.position.y += (targetY - camera.position.y) * timeAdjustedSpeed;
+        camera.position.z += (targetZ - camera.position.z) * timeAdjustedSpeed;
+
+        camera.lookAt(0, 0, 0);
+
+        const dist = camera.position.distanceTo(new THREE.Vector3(targetX, targetY, targetZ));
+
+        if (dist < 1.5) {
+          camera.position.set(targetX, targetY, targetZ);
+          camera.lookAt(0, 0, 0);
+
+          isIntroAnimation = false;
+
+          controls.enabled = true;
+
+          controls.enableDamping = false;
+          controls.update();
+          controls.enableDamping = true;
+        }
+      } else {
+        controls.update();
+
+        if (handPresent) {
+          const rotationSpeed = 3.0 * dt;
+          const zoomSpeed = 200.0 * dt;
+
+          if (particles) {
+            particles.rotation.y += (targetRotationY - particles.rotation.y) * rotationSpeed;
+            particles.rotation.x += (targetRotationX - particles.rotation.x) * rotationSpeed;
+          }
+          camera.position.z += (targetCameraZ - camera.position.z) * (2.0 * dt);
+        } else {
+          if (particles && params.floating && !isPhotoMode) {
+            const speed = params.floatSpeed;
+
+            const floatDamping = 1.0 * dt;
+
+            const targetX = Math.sin(time * 0.3 * speed) * 0.15;
+            particles.rotation.x += (targetX - particles.rotation.x) * floatDamping;
+
+            const maxAngle = Math.PI / 4;
+            const rawWave = (Math.sin(time * 0.5 * speed) + Math.cos(time * 0.2 * speed));
+            const targetY = (rawWave / 2) * maxAngle;
+
+            particles.rotation.y += (targetY - particles.rotation.y) * floatDamping;
+          }
+        }
+      }
+
+      composer.render();
     }
 
     const loadScript = (src: string) => {
@@ -1213,7 +1280,7 @@ export default function AsianBoyUniverse() {
       <div id="loading">Initializing Quantum Field...<br /><span style={{ fontSize: '0.7em', opacity: 0.6, letterSpacing: '1px' }}>Awaiting Input</span></div>
 
       <audio id="bg-music" ref={audioRef}>
-        <source src="https://github.com/Asianboyneo/Asian-Boy/raw/refs/heads/main/Artlist%20Musical%20Logos%20-%20Tribal%20Rhythm.mp3" type="audio/mpeg" />
+        <source src="Artlist Musical Logos - Tribal Rhythm.mp3" type="audio/mpeg" />
       </audio>
 
       <div id="ui-layer">
