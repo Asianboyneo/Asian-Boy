@@ -13,8 +13,7 @@ declare global {
   }
 }
 
-// 修正：使用 Unsplash 上的公開圖片連結
-const DEFAULT_IMAGE_PATH = 'https://images.unsplash.com/photo-1614730341194-75c60740a2d3?auto=format&fit=crop&w=1000&q=80';
+const DEFAULT_IMAGE_PATH = '287069905_564270111773809_6459526836966162411_n.jpg';
 
 export default function AsianBoyUniverse() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -1281,7 +1280,7 @@ export default function AsianBoyUniverse() {
       <div id="loading">Initializing Quantum Field...<br /><span style={{ fontSize: '0.7em', opacity: 0.6, letterSpacing: '1px' }}>Awaiting Input</span></div>
 
       <audio id="bg-music" ref={audioRef}>
-        <source src="https://cdn.pixabay.com/audio/2022/10/25/audio_2267606019.mp3" type="audio/mpeg" />
+        <source src="Artlist Musical Logos - Tribal Rhythm.mp3" type="audio/mpeg" />
       </audio>
 
       <div id="ui-layer">
