@@ -277,6 +277,8 @@
         .lil-gui.autoPlace {
             top: 30px !important;
             right: 20px !important;
+            max-width: calc(100vw - 20px) !important;
+            width: auto !important;
         }
 
         #loading {
@@ -343,55 +345,97 @@
                 transform: translateX(-50%);
                 
                 /* 底部安全距離 */
-                bottom: 20px; 
-                bottom: calc(20px + env(safe-area-inset-bottom));
+                bottom: 15px; 
+                bottom: calc(15px + env(safe-area-inset-bottom));
                 
                 width: 92%; /* 寬度稍微撐開 */
-                padding: 15px;            
-                border-radius: 16px;
+                padding: 0; /* 移除內距，讓按鈕自己撐空間 */           
+                border-radius: 0;
+
+                /* --- 手機版背景移除修正 --- */
+                background: none;
+                backdrop-filter: none;
+                -webkit-backdrop-filter: none;
+                border: none;
+                box-shadow: none;
             }
             
             #ui-layer h1 {
-                font-size: 1.2rem;
-                margin-bottom: 8px;
-                padding-bottom: 8px;
+                font-size: 1.3rem;
+                margin-bottom: 12px;
+                padding-bottom: 10px;
+                /* 標題保持原樣，背景透明 */
             }
             
-            .social-btn {
-                width: 30px;
-                height: 30px;
-                font-size: 1rem;
-            }
-            
+            /* --- 社群按鈕區塊 --- */
             .social-row {
-                margin-bottom: 10px;
-                gap: 8px;
+                margin-bottom: 12px;
+                gap: 10px;
+            }
+
+            /* --- 獨立毛玻璃：社群按鈕 --- */
+            .social-btn {
+                width: 36px;
+                height: 36px;
+                font-size: 1.1rem;
+                
+                /* 獨立毛玻璃樣式 */
+                background: rgba(20, 25, 40, 0.65);
+                backdrop-filter: blur(12px);
+                -webkit-backdrop-filter: blur(12px);
+                border: 1px solid rgba(255, 255, 255, 0.15);
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+                border-radius: 10px;
             }
             
-            /* 修正：針對手機版按鈕進行縮小與排版調整，確保單行顯示 */
+            /* --- 功能按鈕區塊 --- */
             .ui-footer-row {
                 flex-wrap: nowrap; /* 強制不換行 */
-                gap: 4px; /* 縮小間距 */
+                gap: 8px; /* 增加間距讓按鈕分離 */
                 justify-content: space-between; /* 均勻分佈 */
+                
+                /* 移除上方分隔線 */
+                border-top: none;
+                padding-top: 0;
             }
 
+            /* --- 獨立毛玻璃：功能按鈕 --- */
             .reset-btn, .mode-btn {
-                font-size: 10px; /* 縮小字體 (約 0.65rem) */
-                padding: 6px 4px; /* 縮小內距 */
-                letter-spacing: 0; /* 減少字距 */
-                flex-shrink: 1; /* 允許空間不足時縮小 */
+                font-size: 11px;
+                padding: 0 8px;
+                height: 38px; /* 增加高度便於點擊 */
+                letter-spacing: 0.5px;
+                flex-shrink: 1;
                 min-width: 0;
+                
+                /* 獨立毛玻璃樣式 */
+                background: rgba(20, 25, 40, 0.65);
+                backdrop-filter: blur(12px);
+                -webkit-backdrop-filter: blur(12px);
+                border: 1px solid rgba(255, 255, 255, 0.15);
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+                border-radius: 10px;
+                
+                /* 確保文字顏色清晰 */
+                color: rgba(255, 255, 255, 0.9);
+                margin: 0;
             }
 
-            /* 確保圖示與文字的間距也縮小 */
+            /* 激活狀態需要更明顯一點 */
+            .mode-btn.active-photo, .reset-btn.active-music {
+                background: rgba(165, 180, 252, 0.35);
+                border-color: rgba(165, 180, 252, 0.6);
+                box-shadow: 0 0 15px rgba(165, 180, 252, 0.4);
+                color: #fff;
+            }
+
             .reset-btn i, .mode-btn i {
-                margin-right: 2px;
+                margin-right: 3px;
             }
 
-            /* 音樂按鈕只有圖示，不需要縮太多，但防止被擠壓 */
             #btn-music {
                 flex-shrink: 0;
-                padding: 6px 8px;
+                padding: 0 10px;
             }
             
             .divider {
@@ -410,7 +454,7 @@
             .lil-gui {
                 --width: 260px;
                 font-size: 13px;
-                --widget-height: 28px; /* 回復原本的觸控區 */
+                --widget-height: 28px;
                 max-height: 50vh;
                 overflow-y: auto;
                 -webkit-overflow-scrolling: touch; 
@@ -435,13 +479,16 @@
 
     <!-- Import Map for Three.js -->
     <script type="importmap">
-        {
-            "imports": {
-                "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
-                "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
-            }
-        }
-    </script>
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/",
+    "react": "https://esm.sh/react@^19.2.3",
+    "three/": "https://esm.sh/three@^0.182.0/",
+    "react/": "https://esm.sh/react@^19.2.3/"
+  }
+}
+</script>
 </head>
 <body>
 
@@ -507,8 +554,6 @@
         import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
         import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
         import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
-
-        // 移除 Firebase 相關引用
 
         // --- 全局變量 ---
         let scene, camera, renderer, composer, controls;
@@ -663,7 +708,6 @@
         let pinchStrength = 0;
 
         init();
-        // initFirebase(); // 已移除 Firebase 統計功能
         initUI();
         initMediaPipe();
         initFileUpload();
